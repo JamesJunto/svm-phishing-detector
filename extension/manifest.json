@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard",
+  "version": "1.0.0",
+  "description": "PhishGuard browser extension.",
+  "action": {
+    "default_title": "Check this website with PhishGuard",
+    "default_popup": "popup.html"
+  }
+}
