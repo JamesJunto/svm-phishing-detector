@@ -66,6 +66,9 @@ form.addEventListener("submit", async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `The detector returned ${response.status}.`);
     renderResult(data);
+    if (data.phishing) {
+      blockCurrentTab();
+    }
   } catch (error) {
     showError(`${error.message} Start the local server with: py .\\backend\\server.py`);
   } finally {
@@ -102,6 +105,22 @@ function renderResult(data) {
       ? "Avoid entering passwords or payment details on this website."
       : "The model did not detect common phishing signals in this URL.";
   document.getElementById("checked-url").textContent = data.url;
+}
+
+function blockCurrentTab() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0]?.id;
+    if (tabId === undefined) {
+      showError("The warning could not be shown on the current tab.");
+      return;
+    }
+    chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["block.js"]
+    }).catch(() => {
+      showError("The warning could not be shown on this page.");
+    });
+  });
 }
 
 function setLoading(loading) {
