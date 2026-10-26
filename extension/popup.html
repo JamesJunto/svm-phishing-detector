@@ -16,16 +16,42 @@
             <h1>PhishGuard</h1>
           </div>
         </div>
-        <span class="status-dot" title="Protection is inactive" aria-label="Protection is inactive"></span>
+        <span class="status-dot" title="Protection is ready" aria-label="Protection is ready"></span>
       </header>
 
       <section class="hero" aria-labelledby="hero-title">
         <div class="shield" aria-hidden="true">⌾</div>
-        <h2 id="hero-title">Phishing protection</h2>
-        <p>This extension is currently inactive.</p>
+        <h2 id="hero-title">Check before you click</h2>
+        <p>Analyze a website to see if it looks safe or suspicious.</p>
       </section>
 
-      <footer>No website analysis is running.</footer>
+      <form id="scan-form" class="scan-form">
+        <label for="url-input">Website address</label>
+        <div class="input-wrap">
+          <span class="input-icon" aria-hidden="true">↗</span>
+          <input id="url-input" type="url" placeholder="https://example.com" autocomplete="url" required>
+        </div>
+        <button id="scan-button" type="submit">
+          <span id="button-label">Analyze website</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+        <p id="form-message" class="form-message" role="alert"></p>
+      </form>
+
+      <section id="result" class="result is-hidden" aria-live="polite">
+        <div class="result-heading">
+          <div id="result-icon" class="result-icon" aria-hidden="true"></div>
+          <div>
+            <p class="eyebrow">ANALYSIS RESULT</p>
+            <h2 id="result-title"></h2>
+          </div>
+        </div>
+        <p id="result-description" class="result-description"></p>
+        <p id="checked-url" class="checked-url"></p>
+      </section>
+
+      <footer>Powered by your local phishing detection model</footer>
     </main>
+    <script src="popup.js"></script>
   </body>
 </html>

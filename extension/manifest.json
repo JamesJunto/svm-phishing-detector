@@ -2,9 +2,16 @@
   "manifest_version": 3,
   "name": "PhishGuard",
   "version": "1.0.0",
-  "description": "PhishGuard browser extension.",
+  "description": "Check the current website for phishing signals.",
   "action": {
     "default_title": "Check this website with PhishGuard",
     "default_popup": "popup.html"
-  }
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:5000/*"
+  ]
 }
