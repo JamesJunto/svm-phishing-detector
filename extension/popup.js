@@ -33,7 +33,8 @@ const exemptedDomains = [
   "zoom.us",
   "twitch.tv",
   "viber.com",
-  "line.me"
+  "line.me",
+  "github.com"
 ];
 
 form.addEventListener("submit", async (event) => {
