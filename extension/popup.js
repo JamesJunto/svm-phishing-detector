@@ -6,13 +6,6 @@ const buttonLabel = document.getElementById("button-label");
 const message = document.getElementById("form-message");
 const result = document.getElementById("result");
 
-document.addEventListener("DOMContentLoaded", () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const url = tabs[0]?.url;
-    if (url && /^https?:\/\//i.test(url)) input.value = url;
-  });
-});
-
 const exemptedDomains = [
   "youtube.com",
   "reddit.com",
@@ -34,12 +27,21 @@ const exemptedDomains = [
   "twitch.tv",
   "viber.com",
   "line.me",
-  "github.com"
+  "github.com",
 ];
+
+document.addEventListener("DOMContentLoaded", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const url = tabs[0]?.url;
+    if (url && /^https?:\/\//i.test(url)) input.value = url;
+  });
+});
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+
   const url = input.value.trim();
+
   if (!isHttpUrl(url)) {
     showError("Enter a complete http or https website address.");
     return;
@@ -47,30 +49,42 @@ form.addEventListener("submit", async (event) => {
 
   showError("");
   result.classList.add("is-hidden");
+
   if (isExemptedUrl(url)) {
-    renderResult({
-      url,
-      phishing: false,
-      exempted: true
-    });
+    renderResult({ url, phishing: false, exempted: true });
     return;
   }
 
   setLoading(true);
+
   try {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url }),
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || `The detector returned ${response.status}.`);
-    renderResult(data);
-    if (data.phishing) {
+
+    const text = await response.text();
+    console.log(text);
+
+    const data = JSON.parse(text);
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || `The detector returned ${response.status}.`,
+      );
+    }
+
+    const shouldBlock = renderResult(data);
+
+    if (shouldBlock) {
       blockCurrentTab();
     }
+
   } catch (error) {
-    showError(`${error.message} Start the local server with: py .\\backend\\server.py`);
+    showError(
+      `${error.message} Start the local server with: py .\\backend\\server.py`,
+    );
   } finally {
     setLoading(false);
   }
@@ -86,39 +100,83 @@ function isHttpUrl(value) {
 
 function isExemptedUrl(value) {
   const hostname = new URL(value).hostname.toLowerCase();
-  return exemptedDomains.some((domain) =>
-    hostname === domain || hostname.endsWith(`.${domain}`)
+  return exemptedDomains.some(
+    (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
   );
 }
 
+
+
 function renderResult(data) {
-  const phishing = Boolean(data.phishing);
+  const svmPhishing = data.phishing;
+  const phishTankMatch =
+    data.phishtank_response?.results?.in_database;
+
+  let title;
+  let description;
+  let phishing = false;
+  let shouldBlock = false;
+
+  if (svmPhishing && phishTankMatch === true) {
+    title = "Malicious Website Detected";
+    description = "This website has been identified as a phishing threat.";
+    phishing = true;
+    shouldBlock = true;
+
+  } else if (svmPhishing && phishTankMatch === false) {
+    title = "Suspicious Website";
+    description = "This website exhibits characteristics commonly associated with phishing.";
+    phishing = true;
+
+  } else if (!svmPhishing && phishTankMatch === true) {
+    title = "Malicious Website Detected";
+    description = "This website has been identified as a reported phishing threat.";
+    phishing = true;
+    shouldBlock = true;
+
+  } else if (!svmPhishing && phishTankMatch === false) {
+    title = "Website Appears Safe";
+    description = "No known phishing indicators were detected.";
+
+  } else if (svmPhishing) {
+    title = "Suspicious Website";
+    description = "This website exhibits potentially harmful characteristics.";
+    phishing = true;
+
+  } else {
+    title = "Website Reputation Unavailable";
+    description = "No suspicious URL patterns were detected, but the website's reputation could not be verified.";
+  }
+
   result.classList.remove("is-hidden", "is-danger");
   result.classList.toggle("is-danger", phishing);
-  document.getElementById("result-icon").textContent = phishing ? "!" : "✓";
-  document.getElementById("result-title").textContent = data.exempted
-    ? "Trusted site"
-    : phishing ? "Potential phishing site" : "This site looks safe";
-  document.getElementById("result-description").textContent = data.exempted
-    ? "This domain is on your trusted-site list and was not sent to the model."
-    : phishing
-      ? "Avoid entering passwords or payment details on this website."
-      : "The model did not detect common phishing signals in this URL.";
+
+  document.getElementById("result-icon").textContent =
+    phishing ? "!" : "✓";
+
+  document.getElementById("result-title").textContent = title;
+  document.getElementById("result-description").textContent = description;
   document.getElementById("checked-url").textContent = data.url;
+
+  return shouldBlock;
 }
+
+
 
 function blockCurrentTab() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tabId = tabs[0]?.id;
+
     if (tabId === undefined) {
-      showError("The warning could not be shown on the current tab.");
+      showError("Unable to display the security warning.");
       return;
     }
+
     chrome.scripting.executeScript({
       target: { tabId },
-      files: ["block.js"]
+      files: ["block.js"],
     }).catch(() => {
-      showError("The warning could not be shown on this page.");
+      showError("Unable to display the security warning on this page.");
     });
   });
 }

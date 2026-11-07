@@ -1,57 +1,86 @@
+
 (() => {
   const overlayId = "phishguard-warning-overlay";
-  const existingOverlay = document.getElementById(overlayId);
-  if (existingOverlay) {
-    existingOverlay.remove();
-  }
+
+  document.getElementById(overlayId)?.remove();
 
   const overlay = document.createElement("div");
   overlay.id = overlayId;
-  overlay.setAttribute("role", "alertdialog");
-  overlay.setAttribute("aria-modal", "true");
-  overlay.style.cssText = [
-    "position: fixed",
-    "inset: 0",
-    "z-index: 2147483647",
-    "display: grid",
-    "place-items: center",
-    "padding: 24px",
-    "background: rgba(15, 23, 42, .94)",
-    "color: #f8fafc",
-    "font: 16px/1.5 system-ui, sans-serif"
-  ].join(";");
 
-  const card = document.createElement("div");
-  card.style.cssText = [
-    "width: min(460px, 100%)",
-    "padding: 32px",
-    "border: 1px solid #ef4444",
-    "border-radius: 16px",
-    "background: #1e293b",
-    "box-shadow: 0 24px 80px rgba(0, 0, 0, .45)"
-  ].join(";");
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2147483647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    background: #b00020;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  `;
+
+  const content = document.createElement("div");
+  content.style.cssText = `
+    max-width: 650px;
+    width: 100%;
+  `;
+
+  const icon = document.createElement("div");
+  icon.textContent = "⚠";
+  icon.style.cssText = `
+    font-size: 80px;
+    margin-bottom: 25px;
+  `;
 
   const title = document.createElement("h1");
-  title.textContent = "Potential phishing site";
-  title.style.cssText = "margin: 0 0 12px; color: #fca5a5; font-size: 26px;";
+  title.textContent = "Dangerous Website Detected";
+  title.style.cssText = `
+    font-size: 38px;
+    margin: 0 0 20px;
+  `;
 
   const message = document.createElement("p");
-  message.textContent = "PhishGuard has paused this page because its URL matched phishing indicators. Your page was not deleted.";
-  message.style.cssText = "margin: 0 0 24px; color: #cbd5e1;";
+  message.textContent =
+    "This website has been identified as potentially malicious. It may be attempting to steal your passwords, financial information, or personal data.";
+  message.style.cssText = `
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+  `;
+
+
 
   const leave = document.createElement("button");
-  leave.type = "button";
-  leave.textContent = "Leave site";
-  leave.style.cssText = "margin-right: 10px; padding: 10px 16px; border: 0; border-radius: 8px; background: #ef4444; color: white; font-weight: 700; cursor: pointer;";
-  leave.addEventListener("click", () => window.history.back());
+  leave.textContent = "Leave Site";
+  leave.style.cssText = `
+    margin-top: 20px;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    color: #b00020;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  `;
 
-  const continueButton = document.createElement("button");
-  continueButton.type = "button";
-  continueButton.textContent = "Continue anyway";
-  continueButton.style.cssText = "padding: 10px 16px; border: 1px solid #64748b; border-radius: 8px; background: transparent; color: #e2e8f0; cursor: pointer;";
-  continueButton.addEventListener("click", () => overlay.remove());
+  leave.addEventListener("click", () => {
+    history.back();
+  });
 
-  card.append(title, message, leave, continueButton);
-  overlay.append(card);
+  const note = document.createElement("p");
+  note.textContent = "Protected by PhishGuard";
+  note.style.cssText = `
+    margin-top: 30px;
+    font-size: 13px;
+    opacity: 0.8;
+  `;
+
+  content.append(icon, title, message, url, leave, note);
+  overlay.append(content);
   document.documentElement.append(overlay);
 })();

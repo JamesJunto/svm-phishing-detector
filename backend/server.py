@@ -4,10 +4,12 @@ from urllib.parse import urlparse
 
 import joblib
 import pandas as pd
+import dns.resolver
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from feature_extractor import extract_url_features_csv_compatible
+from layers import is_url_reported_as_phishing
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +37,13 @@ def predict():
     if parsed_url.scheme not in ("http", "https") or not parsed_url.netloc:
         return jsonify({"error": "Invalid URL"}), 400
 
+    phishtank_result = is_url_reported_as_phishing(url)
+
+    phishtank_data = None
+
+    if phishtank_result is not None:
+        phishtank_data = phishtank_result.json()
+
     features = extract_url_features_csv_compatible(url)
     features_df = pd.DataFrame([features])[feature_names]
 
@@ -44,7 +53,8 @@ def predict():
         "url": url,
         "prediction": prediction,
         "phishing": prediction == 0,
-        "label": "Phishing" if prediction == 0 else "Legitimate"
+        "label": "Phishing" if prediction == 0 else "Legitimate",
+        "phishtank_response": phishtank_data
     })
 
 
