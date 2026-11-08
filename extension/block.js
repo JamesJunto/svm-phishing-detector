@@ -80,7 +80,7 @@
     opacity: 0.8;
   `;
 
-  content.append(icon, title, message, url, leave, note);
+  content.append(icon, title, message, leave, note);
   overlay.append(content);
   document.documentElement.append(overlay);
 })();

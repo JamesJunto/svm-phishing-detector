@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 
 import joblib
 import pandas as pd
-import dns.resolver
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -16,8 +15,16 @@ CORS(app)
 
 BASE_DIR = Path(__file__).resolve().parent
 
+def load_model():
+    loaded_model = joblib.load(BASE_DIR / "phishing_model.joblib")
+    for _, step in loaded_model.steps:
+        if hasattr(step, "_fit_dtype") and not hasattr(step, "_fill_dtype"):
+            step._fill_dtype = step._fit_dtype
+    return loaded_model
+
+
 # Load the trained model and its expected features
-model = joblib.load(BASE_DIR / "phishing_model.joblib")
+model = load_model()
 feature_names = joblib.load(BASE_DIR / "url_features.joblib")
 
 @app.get("/health")

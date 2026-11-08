@@ -111,17 +111,16 @@ function renderResult(data) {
   const svmPhishing = data.phishing;
   const phishTankMatch =
     data.phishtank_response?.results?.in_database;
+  const shouldBlock = svmPhishing || phishTankMatch === true;
 
   let title;
   let description;
   let phishing = false;
-  let shouldBlock = false;
 
   if (svmPhishing && phishTankMatch === true) {
     title = "Malicious Website Detected";
     description = "This website has been identified as a phishing threat.";
     phishing = true;
-    shouldBlock = true;
 
   } else if (svmPhishing && phishTankMatch === false) {
     title = "Suspicious Website";
@@ -132,7 +131,6 @@ function renderResult(data) {
     title = "Malicious Website Detected";
     description = "This website has been identified as a reported phishing threat.";
     phishing = true;
-    shouldBlock = true;
 
   } else if (!svmPhishing && phishTankMatch === false) {
     title = "Website Appears Safe";
