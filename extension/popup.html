@@ -41,18 +41,13 @@
         <p id="form-message" class="form-message" role="alert"></p>
       </form>
 
-      <section class="trusted-domains" aria-labelledby="trusted-domains-title">
-        <div class="section-heading">
-          <h2 id="trusted-domains-title">Trusted domains</h2>
-        </div>
-        <form id="domain-form" class="domain-form">
-          <label class="sr-only" for="domain-input">Add a trusted domain</label>
-          <input id="domain-input" type="text" placeholder="example.com" autocomplete="off">
-          <button type="submit">Add</button>
-        </form>
-        <p id="domain-message" class="form-message" role="alert"></p>
-        <ul id="custom-domains" class="custom-domains"></ul>
-      </section>
+      <button id="open-domains-button" class="trusted-domains-launcher" type="button">
+        <span>
+          <strong>Trusted domains</strong>
+          <small>Manage built-in and custom exemptions</small>
+        </span>
+        <span aria-hidden="true">›</span>
+      </button>
 
       <section id="result" class="result is-hidden" aria-live="polite">
         <div class="result-heading">

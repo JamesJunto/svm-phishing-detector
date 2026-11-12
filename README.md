@@ -16,6 +16,7 @@ extension/
   popup.html                 Extension popup
   popup.js                   Popup scanning and blocking behavior
   domain-manager.js          Built-in and user-managed trusted domains
+  trusted-domains-overlay.js Large trusted-domain manager injected into the active page
   block.js                   Reversible warning overlay
   style.css                  Popup styles
 
@@ -138,9 +139,9 @@ The extension does not delete or overwrite the page’s HTML.
 
 ## Trusted domains
 
-Some well-known domains are exempted in `extension/popup.js`, including YouTube, Reddit, GitHub, Discord, Twitch, and others. URLs under those domains are shown as trusted and are not sent to the model.
+Some well-known domains are exempted in `extension/domain-manager.js`, including YouTube, Reddit, GitHub, Discord, Twitch, and others. The popup displays the complete built-in list alongside any custom domains. URLs under trusted domains are shown as trusted and are not sent to the model.
 
-You can add your own trusted domains from the **Trusted domains** section in the popup. Enter a domain such as `example.com` and select **Add**. Custom domains are saved locally and can be removed at any time. Subdomains are included automatically, so adding `example.com` also trusts `www.example.com`.
+Select **Trusted domains** in the popup to inject a larger domain-management panel into the active page. You can add your own trusted domains by entering a domain such as `example.com` and selecting **Add**. Custom domains are saved locally and can be removed at any time. Subdomains are included automatically, so adding `example.com` also trusts `www.example.com`.
 
 For example:
 

@@ -1,6 +1,6 @@
 const STORAGE_KEY = "customExemptedDomains";
 
-const exemptedDomains = [
+export const exemptedDomains = [
   "youtube.com",
   "reddit.com",
   "twitter.com",
@@ -28,61 +28,19 @@ const exemptedDomains = [
   "colab.research.google.com",
 ];
 
-export function createDomainManager({
-  form,
-  input,
-  message,
-  list,
-}) {
-  let customDomains = [];
-
-  chrome.storage.local.get({ [STORAGE_KEY]: [] }, (settings) => {
-    customDomains = sanitizeStoredDomains(settings[STORAGE_KEY]);
-    renderCustomDomains(list, customDomains);
+export function loadCustomDomains() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get({ [STORAGE_KEY]: [] }, (settings) => {
+      resolve(sanitizeStoredDomains(settings[STORAGE_KEY]));
+    });
   });
+}
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const domain = normalizeDomain(input.value);
-    if (!domain) {
-      showMessage(message, "Enter a valid domain, such as example.com.");
-      return;
-    }
-
-    if ([...exemptedDomains, ...customDomains].includes(domain)) {
-      showMessage(message, "That domain is already trusted.");
-      return;
-    }
-
-    customDomains = [...customDomains, domain];
-    saveDomains(customDomains);
-    input.value = "";
-    showMessage(message, "");
-    renderCustomDomains(list, customDomains);
-  });
-
-  list.addEventListener("click", (event) => {
-    const removeButton = event.target.closest("[data-remove-domain]");
-    if (!removeButton) {
-      return;
-    }
-
-    customDomains = customDomains.filter(
-      (domain) => domain !== removeButton.dataset.removeDomain,
-    );
-    saveDomains(customDomains);
-    renderCustomDomains(list, customDomains);
-  });
-
-  return {
-    isExemptedUrl(value) {
-      const hostname = new URL(value).hostname.toLowerCase();
-      return [...exemptedDomains, ...customDomains].some(
-        (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
-      );
-    },
-  };
+export function isTrustedUrl(value, customDomains) {
+  const hostname = new URL(value).hostname.toLowerCase();
+  return [...exemptedDomains, ...customDomains].some(
+    (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+  );
 }
 
 function normalizeDomain(value) {
@@ -116,33 +74,9 @@ function sanitizeStoredDomains(domains) {
   return domains
     .filter((domain) => typeof domain === "string")
     .map(normalizeDomain)
-    .filter(Boolean);
-}
-
-function saveDomains(domains) {
-  chrome.storage.local.set({ [STORAGE_KEY]: domains });
-}
-
-function renderCustomDomains(list, domains) {
-  list.replaceChildren();
-
-  for (const domain of domains) {
-    const item = document.createElement("li");
-    item.className = "custom-domain";
-
-    const label = document.createElement("span");
-    label.textContent = domain;
-
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.textContent = "Remove";
-    removeButton.dataset.removeDomain = domain;
-
-    item.append(label, removeButton);
-    list.append(item);
-  }
-}
-
-function showMessage(element, text) {
-  element.textContent = text;
+    .filter(Boolean)
+    .filter((domain, index, normalizedDomains) =>
+      normalizedDomains.indexOf(domain) === index &&
+      !exemptedDomains.includes(domain),
+    );
 }

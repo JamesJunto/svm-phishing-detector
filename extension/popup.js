@@ -1,4 +1,4 @@
-import { createDomainManager } from "./domain-manager.js";
+import { isTrustedUrl, loadCustomDomains } from "./domain-manager.js";
 
 const API_URL = "http://127.0.0.1:5000/predict";
 const form = document.getElementById("scan-form");
@@ -8,16 +8,16 @@ const buttonLabel = document.getElementById("button-label");
 const message = document.getElementById("form-message");
 const result = document.getElementById("result");
 const blockingToggle = document.getElementById("blocking-toggle");
+const openDomainsButton = document.getElementById("open-domains-button");
 let blockingEnabled = true;
-
-const domainManager = createDomainManager({
-  form: document.getElementById("domain-form"),
-  input: document.getElementById("domain-input"),
-  message: document.getElementById("domain-message"),
-  list: document.getElementById("custom-domains"),
+let customDomains = [];
+const customDomainsReady = loadCustomDomains().then((domains) => {
+  customDomains = domains;
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  openDomainsButton.addEventListener("click", openDomainsModal);
+
   chrome.storage.local.get({ blockingEnabled: true }, (settings) => {
     blockingEnabled = settings.blockingEnabled === true;
     blockingToggle.checked = blockingEnabled;
@@ -47,6 +47,7 @@ form.addEventListener("submit", async (event) => {
   showError("");
   result.classList.add("is-hidden");
 
+  await customDomainsReady;
   if (isExemptedUrl(url)) {
     renderResult({ url, phishing: false, exempted: true });
     return;
@@ -96,7 +97,24 @@ function isHttpUrl(value) {
 }
 
 function isExemptedUrl(value) {
-  return domainManager.isExemptedUrl(value);
+  return isTrustedUrl(value, customDomains);
+}
+
+function openDomainsModal() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0]?.id;
+    if (tabId === undefined) {
+      showError("Unable to open trusted-domain settings on this page.");
+      return;
+    }
+
+    chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["trusted-domains-overlay.js"],
+    }).then(() => window.close()).catch(() => {
+        showError("Unable to open trusted-domain settings on this page.");
+      });
+  });
 }
 
 function renderResult(data) {
