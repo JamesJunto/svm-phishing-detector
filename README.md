@@ -14,7 +14,8 @@ backend/
 extension/
   manifest.json              Chrome/Edge extension configuration
   popup.html                 Extension popup
-  popup.js                   Popup and API behavior
+  popup.js                   Popup scanning and blocking behavior
+  domain-manager.js          Built-in and user-managed trusted domains
   block.js                   Reversible warning overlay
   style.css                  Popup styles
 
@@ -138,6 +139,8 @@ The extension does not delete or overwrite the page’s HTML.
 ## Trusted domains
 
 Some well-known domains are exempted in `extension/popup.js`, including YouTube, Reddit, GitHub, Discord, Twitch, and others. URLs under those domains are shown as trusted and are not sent to the model.
+
+You can add your own trusted domains from the **Trusted domains** section in the popup. Enter a domain such as `example.com` and select **Add**. Custom domains are saved locally and can be removed at any time. Subdomains are included automatically, so adding `example.com` also trusts `www.example.com`.
 
 For example:
 

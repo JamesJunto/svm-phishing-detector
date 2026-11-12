@@ -132,6 +132,61 @@ button:disabled { cursor: wait; opacity: .7; }
 .spinner { display: none; width: 14px; height: 14px; margin-left: 5px; border: 2px solid #ffffff66; border-top-color: white; border-radius: 50%; vertical-align: -2px; animation: spin .7s linear infinite; }
 .is-loading .spinner { display: inline-block; }
 .form-message { min-height: 18px; margin-top: 7px; color: var(--danger); font-size: 11px; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.trusted-domains { margin: 4px 0 21px; }
+.domain-form { display: flex; gap: 7px; margin-top: 8px; }
+.domain-form input { min-width: 0; height: 34px; padding-left: 10px; }
+.domain-form button {
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand);
+  color: white;
+  font-weight: 700;
+}
+.domain-form button:hover { background: var(--brand-dark); }
+.custom-domains {
+  display: grid;
+  gap: 5px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.custom-domain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: var(--soft);
+  color: var(--muted);
+  font-size: 11px;
+}
+.custom-domain span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.custom-domain button {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+  font-size: 10px;
+}
 
 .result {
   margin: 2px 0 21px;

@@ -41,6 +41,19 @@
         <p id="form-message" class="form-message" role="alert"></p>
       </form>
 
+      <section class="trusted-domains" aria-labelledby="trusted-domains-title">
+        <div class="section-heading">
+          <h2 id="trusted-domains-title">Trusted domains</h2>
+        </div>
+        <form id="domain-form" class="domain-form">
+          <label class="sr-only" for="domain-input">Add a trusted domain</label>
+          <input id="domain-input" type="text" placeholder="example.com" autocomplete="off">
+          <button type="submit">Add</button>
+        </form>
+        <p id="domain-message" class="form-message" role="alert"></p>
+        <ul id="custom-domains" class="custom-domains"></ul>
+      </section>
+
       <section id="result" class="result is-hidden" aria-live="polite">
         <div class="result-heading">
           <div id="result-icon" class="result-icon" aria-hidden="true"></div>
@@ -55,6 +68,6 @@
 
       <footer>Powered by your local phishing detection model</footer>
     </main>
-    <script src="popup.js"></script>
+    <script type="module" src="popup.js"></script>
   </body>
 </html>

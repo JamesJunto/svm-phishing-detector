@@ -1,3 +1,5 @@
+import { createDomainManager } from "./domain-manager.js";
+
 const API_URL = "http://127.0.0.1:5000/predict";
 const form = document.getElementById("scan-form");
 const input = document.getElementById("url-input");
@@ -8,36 +10,16 @@ const result = document.getElementById("result");
 const blockingToggle = document.getElementById("blocking-toggle");
 let blockingEnabled = true;
 
-const exemptedDomains = [
-  "youtube.com",
-  "reddit.com",
-  "twitter.com",
-  "facebook.com",
-  "instagram.com",
-  "linkedin.com",
-  "tiktok.com",
-  "snapchat.com",
-  "pinterest.com",
-  "whatsapp.com",
-  "telegram.org",
-  "signal.org",
-  "messenger.com",
-  "discord.com",
-  "slack.com",
-  "skype.com",
-  "zoom.us",
-  "twitch.tv",
-  "viber.com",
-  "line.me",
-  "github.com",
-  "classroom.google.com",
-  "learn.quipper.com",
-  "umtc.umindanao.edu.ph",  
-];
+const domainManager = createDomainManager({
+  form: document.getElementById("domain-form"),
+  input: document.getElementById("domain-input"),
+  message: document.getElementById("domain-message"),
+  list: document.getElementById("custom-domains"),
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   chrome.storage.local.get({ blockingEnabled: true }, (settings) => {
-    blockingEnabled = settings.blockingEnabled;
+    blockingEnabled = settings.blockingEnabled === true;
     blockingToggle.checked = blockingEnabled;
   });
 
@@ -114,13 +96,8 @@ function isHttpUrl(value) {
 }
 
 function isExemptedUrl(value) {
-  const hostname = new URL(value).hostname.toLowerCase();
-  return exemptedDomains.some(
-    (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
-  );
+  return domainManager.isExemptedUrl(value);
 }
-
-
 
 function renderResult(data) {
   const svmPhishing = data.phishing;
