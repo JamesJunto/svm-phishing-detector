@@ -60,12 +60,20 @@ h2 { font-size: 16px; letter-spacing: -.02em; }
   font-weight: 800;
   letter-spacing: .11em;
 }
-.status-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #35b981;
-  box-shadow: 0 0 0 4px #e3f7ee;
+.blocking-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.blocking-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--brand);
 }
 .hero { padding: 0 2px 20px; }
 .shield {

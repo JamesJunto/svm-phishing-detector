@@ -126,7 +126,9 @@ After changing extension files, return to the extensions page and click **Reload
 4. Click **Analyze website**.
 5. Review the result.
 
-If the model classifies the URL as phishing, the extension injects a reversible warning overlay into the current page. The overlay provides:
+Use the **Block** toggle in the popup header to control whether detected threats are blocked. Blocking is enabled by default and the setting is saved between popup sessions. Turning blocking off still analyzes URLs and displays results, but does not inject the warning overlay.
+
+When blocking is enabled and the model classifies the URL as phishing, the extension injects a reversible warning overlay into the current page. The overlay provides:
 
 - **Leave site** — navigates back to the previous page.
 - **Continue anyway** — removes the overlay and restores access to the page.

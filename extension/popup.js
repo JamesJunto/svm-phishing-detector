@@ -5,6 +5,8 @@ const button = document.getElementById("scan-button");
 const buttonLabel = document.getElementById("button-label");
 const message = document.getElementById("form-message");
 const result = document.getElementById("result");
+const blockingToggle = document.getElementById("blocking-toggle");
+let blockingEnabled = true;
 
 const exemptedDomains = [
   "youtube.com",
@@ -28,9 +30,22 @@ const exemptedDomains = [
   "viber.com",
   "line.me",
   "github.com",
+  "classroom.google.com",
+  "learn.quipper.com",
+  "umtc.umindanao.edu.ph",  
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  chrome.storage.local.get({ blockingEnabled: true }, (settings) => {
+    blockingEnabled = settings.blockingEnabled;
+    blockingToggle.checked = blockingEnabled;
+  });
+
+  blockingToggle.addEventListener("change", () => {
+    blockingEnabled = blockingToggle.checked;
+    chrome.storage.local.set({ blockingEnabled });
+  });
+
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const url = tabs[0]?.url;
     if (url && /^https?:\/\//i.test(url)) input.value = url;
@@ -111,7 +126,7 @@ function renderResult(data) {
   const svmPhishing = data.phishing;
   const phishTankMatch =
     data.phishtank_response?.results?.in_database;
-  const shouldBlock = svmPhishing || phishTankMatch === true;
+  const shouldBlock = blockingEnabled && (svmPhishing || phishTankMatch === true);
 
   let title;
   let description;
